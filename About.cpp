@@ -14,13 +14,13 @@ About::About( QWidget *parent ):
   QPlainTextEdit *te = new QPlainTextEdit( this );
   te->setReadOnly( true );
 
-  /*QFile f(":res/about.txt");
+  QFile f(":res/about.txt");
   f.open( QIODevice::ReadOnly );
   QTextStream ts( &f );
   ts.setAutoDetectUnicode( true );
   ts.setGenerateByteOrderMark( false );
   te->appendHtml( QT_TRANSLATE_NOOP( "About", ts.readAll().replace("APP_VERSION", APP_VERSION).replace("QT_VERSION_STR", QT_VERSION_STR) ) );
-  f.close();*/
+  f.close();
 
   QVBoxLayout *vl = new QVBoxLayout( this );
   vl->addWidget( te );
