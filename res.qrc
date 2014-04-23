@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/icon.ico</file>
+        <file>res/project.png</file>
+        <file>res/add.png</file>
+        <file>res/folder.png</file>
+        <file>res/image.png</file>
+        <file>res/location.png</file>
+        <file>res/script.png</file>
+        <file>res/sound.png</file>
+        <file>res/hotspots.png</file>
+        <file>res/cubemap.png</file>
+        <file>res/panel.png</file>
+        <file>res/slide.png</file>
+        <file>res/minus.png</file>
+        <file>res/plus.png</file>
+        <file>res/patch.png</file>
+        <file>res/print.png</file>
+        <file>res/ramka.png</file>
+        <file>res/scene.png</file>
+        <file>res/back.png</file>
+        <file>res/bottom.png</file>
+        <file>res/front.png</file>
+        <file>res/left.png</file>
+        <file>res/right.png</file>
+        <file>res/top.png</file>
+        <file>res/about.png</file>
+        <file>res/about.txt</file>
+        <file>res/style.css</file>
+        <file>res/save.png</file>
+        <file>res/open.png</file>
+        <file>res/settings.png</file>
+        <file>res/legend.png</file>
+        <file>res/checkbox.png</file>
+        <file>res/new.png</file>
+        <file>res/start.png</file>
+        <file>res/update.png</file>
+        <file>res/pipmak.png</file>
+        <file>res/resource.png</file>
+        <file>res/style.png</file>
+        <file>res/keyboard.png</file>
+        <file>res/play.png</file>
+        <file>res/stop.png</file>
+    </qresource>
+</RCC>
