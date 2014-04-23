@@ -30,7 +30,6 @@ unix: LIBS += -lGL -lopenal
 unix: LIBS += -Llibs/UNIX/libogg-1.3.1/lib -logg
 unix: LIBS += -Llibs/UNIX/libvorbis-1.3.4/lib -lvorbis
 unix: LIBS += -Llibs/UNIX/libvorbis-1.3.4/lib -lvorbisfile
-unix: LIBS += -Llibs/UNIX/libmad-0.15.1b/lib -lmad
 
 unix: INCLUDEPATH += libs/UNIX/libogg-1.3.1/include libs/UNIX/libvorbis-1.3.4/include
 
