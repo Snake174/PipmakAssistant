@@ -2,24 +2,78 @@
 #include <QToolButton>
 #include <QFrame>
 #include <QHBoxLayout>
-#include <QTreeWidget>
+#include <QListWidget>
+#include <QSlider>
+#include <QDebug>
 
 #include "../PathUtils.h"
+#include "OggFile.h"
 #include "AudioPlayer.h"
 
 //=================================================================================================
 AudioPlayer::AudioPlayer( QWidget *parent ):
   QMdiSubWindow( parent ),
-  mdi( (QMdiArea *)parent )
+  mdi( (QMdiArea *)parent ),
+  currentSound(0)
 {
   ALApp::error();
 
-  soundTree = new QTreeWidget( this );
-  soundTree->setColumnCount(2);
-  soundTree->setHeaderLabels( QStringList() << tr("Name") << tr("Operations") );
-  soundTree->setHeaderHidden( false );
+  QFrame *fr = new QFrame( this );
+  QVBoxLayout *vl = new QVBoxLayout( fr );
 
-  setWidget( soundTree );
+  soundList = new QListWidget( fr );
+
+  QToolButton *tbFirst = new QToolButton( fr );
+  tbFirst->setIconSize( QSize( 16, 16 ) );
+  tbFirst->setIcon( QIcon(":res/audio_first.png") );
+  connect( tbFirst, SIGNAL(clicked()), this, SLOT(playSound()) );
+
+  QToolButton *tbPrev = new QToolButton( fr );
+  tbPrev->setIconSize( QSize( 16, 16 ) );
+  tbPrev->setIcon( QIcon(":res/audio_prev.png") );
+  connect( tbPrev, SIGNAL(clicked()), this, SLOT(playSound()) );
+
+  QToolButton *tbPlay = new QToolButton( fr );
+  tbPlay->setIconSize( QSize( 16, 16 ) );
+  tbPlay->setIcon( QIcon(":res/audio_play.png") );
+  connect( tbPlay, SIGNAL(clicked()), this, SLOT(playSound()) );
+
+  QToolButton *tbStop = new QToolButton( fr );
+  tbStop->setIconSize( QSize( 16, 16 ) );
+  tbStop->setIcon( QIcon(":res/audio_stop.png") );
+  connect( tbStop, SIGNAL(clicked()), this, SLOT(stopSound()) );
+
+  QToolButton *tbNext = new QToolButton( fr );
+  tbNext->setIconSize( QSize( 16, 16 ) );
+  tbNext->setIcon( QIcon(":res/audio_next.png") );
+  connect( tbNext, SIGNAL(clicked()), this, SLOT(playSound()) );
+
+  QToolButton *tbLast = new QToolButton( fr );
+  tbLast->setIconSize( QSize( 16, 16 ) );
+  tbLast->setIcon( QIcon(":res/audio_last.png") );
+  connect( tbLast, SIGNAL(clicked()), this, SLOT(playSound()) );
+
+  QHBoxLayout *hl = new QHBoxLayout();
+  hl->addWidget( tbFirst );
+  hl->addWidget( tbPrev );
+  hl->addSpacing(5);
+  hl->addWidget( tbPlay );
+  hl->addWidget( tbStop );
+  hl->addSpacing(5);
+  hl->addWidget( tbNext );
+  hl->addWidget( tbLast );
+  hl->setMargin(3);
+  hl->setSpacing(0);
+  hl->setAlignment( Qt::AlignHCenter );
+
+  timeScale = new QSlider( fr );
+  timeScale->setOrientation( Qt::Horizontal );
+
+  vl->addWidget( soundList );
+  vl->addWidget( timeScale, Qt::AlignHCenter );
+  vl->addLayout( hl );
+
+  setWidget( fr );
   setWindowFlags( Qt::WindowMaximizeButtonHint | Qt::WindowMinimizeButtonHint | Qt::WindowTitleHint );
   setWindowIcon( QIcon(":res/sound.png") );
   setWindowTitle( tr("Audio Player") );
@@ -27,9 +81,10 @@ AudioPlayer::AudioPlayer( QWidget *parent ):
 //=================================================================================================
 AudioPlayer::~AudioPlayer()
 {
-  for (QMap<QString, Sounds *>::iterator it = sounds.begin(); it != sounds.end(); ++it)
+  for (QMap<QString, OggFile *>::iterator it = sounds.begin(); it != sounds.end(); ++it)
   {
     it.value()->stop();
+    it.value()->free();
 
     delete *it;
     *it = 0;
@@ -42,48 +97,36 @@ void AudioPlayer::addSound( const QString &name )
   {
     bool finded = false;
 
-    for (int i = 0; i < soundTree->topLevelItemCount(); ++i)
+    for (int i = 0; i < soundList->count(); ++i)
     {
-      if (!soundTree->topLevelItem(i)->whatsThis(0).compare( name ))
+      QListWidgetItem *item = soundList->item(i);
+
+      if (!item->whatsThis().compare( name ))
       {
         finded = true;
         sounds[ name ]->stop();
-        sounds[ name ]->play();
+
+        currentSound = sounds[ name ];
+        playSound();
+
         break;
       }
     }
 
     if (!finded)
     {
-      QTreeWidgetItem *sound = new QTreeWidgetItem( soundTree );
-      sound->setText( 0, PathUtils::getName( name ) );
-      sound->setWhatsThis( 0, name );
+      QListWidgetItem *sound = new QListWidgetItem( soundList );
+      sound->setText( PathUtils::getName( name ) );
+      sound->setWhatsThis( name );
+      sound->setData( Qt::DecorationRole, QIcon(":res/sound.png") );
 
-      QFrame *fr = new QFrame( soundTree );
-      QHBoxLayout *hl = new QHBoxLayout( fr );
+      sounds.insert( name, new OggFile( name, this ) );
 
-      QToolButton *tbPlay = new QToolButton( fr );
-      tbPlay->setIconSize( QSize( 16, 16 ) );
-      tbPlay->setIcon( QIcon(":res/play.png") );
-      tbPlay->setWhatsThis( name );
-      connect( tbPlay, SIGNAL(clicked()), this, SLOT(playSound()) );
+      if (currentSound)
+        currentSound->stop();
 
-      QToolButton *tbStop = new QToolButton( fr );
-      tbStop->setIconSize( QSize( 16, 16 ) );
-      tbStop->setIcon( QIcon(":res/stop.png") );
-      tbStop->setWhatsThis( name );
-      connect( tbPlay, SIGNAL(clicked()), this, SLOT(stopSound()) );
-
-      hl->addWidget( tbPlay );
-      hl->addWidget( tbStop );
-      hl->setMargin(0);
-      hl->setSpacing(0);
-      hl->setAlignment( Qt::AlignLeft );
-
-      soundTree->setItemWidget( sound, 1, fr );
-
-      sounds.insert( name, new Sounds( name ) );
-      sounds[ name ]->play();
+      currentSound = sounds[ name ];
+      playSound();
     }
   }
 }
@@ -96,24 +139,28 @@ void AudioPlayer::closeEvent( QCloseEvent *e )
 //=================================================================================================
 void AudioPlayer::playSound()
 {
-  QToolButton *tb = dynamic_cast<QToolButton *>( sender() );
-
-  if (tb)
+  if (currentSound)
   {
-    QString name = tb->whatsThis();
-    sounds[ name ]->stop();
-    sounds[ name ]->play();
+    disconnect( currentSound, 0, 0, 0 );
+    connect( currentSound, SIGNAL(position(int,int)), this, SLOT(timePosition(int,int)) );
+    currentSound->play();
   }
 }
 //=================================================================================================
 void AudioPlayer::stopSound()
 {
-  QToolButton *tb = dynamic_cast<QToolButton *>( sender() );
+  if (currentSound)
+    currentSound->stop();
+}
+//=================================================================================================
+void AudioPlayer::timePosition( int cur, int all )
+{
+  timeScale->setRange( 0, all );
 
-  if (tb)
-  {
-    QString name = tb->whatsThis();
-    sounds[ name ]->stop();
-  }
+  /*float p = (float)cur / (float)all * 100.0f;
+  int pos = p * all / 100;
+  qDebug() << pos;*/
+
+  timeScale->setValue( cur );
 }
 //=================================================================================================

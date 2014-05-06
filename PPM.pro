@@ -262,7 +262,9 @@ SOURCES += \
     libs/editor/src/AutoComplete.cpp \
     Sound/ALApp.cpp \
     Sound/AudioPlayer.cpp \
-    Node/HotSpotViewer.cpp
+    Node/HotSpotViewer.cpp \
+    Sound/OggFile.cpp \
+    Sound/PlaySoundThread.cpp
 
 HEADERS += \
   MainWindow.h \
@@ -411,6 +413,8 @@ HEADERS += \
     libs/editor/src/AutoComplete.h \
     Sound/ALApp.h \
     Sound/AudioPlayer.h \
-    Node/HotSpotViewer.h
+    Node/HotSpotViewer.h \
+    Sound/OggFile.h \
+    Sound/PlaySoundThread.h
 
 RESOURCES += res.qrc

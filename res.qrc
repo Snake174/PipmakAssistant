@@ -39,7 +39,13 @@
         <file>res/resource.png</file>
         <file>res/style.png</file>
         <file>res/keyboard.png</file>
-        <file>res/play.png</file>
-        <file>res/stop.png</file>
+        <file>res/audio_first.png</file>
+        <file>res/audio_last.png</file>
+        <file>res/audio_next.png</file>
+        <file>res/audio_open.png</file>
+        <file>res/audio_pause.png</file>
+        <file>res/audio_play.png</file>
+        <file>res/audio_prev.png</file>
+        <file>res/audio_stop.png</file>
     </qresource>
 </RCC>

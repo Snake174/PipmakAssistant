@@ -9,7 +9,9 @@
 #include "ALApp.h"
 //=================================================================================================
 QT_BEGIN_NAMESPACE
-  class QTreeWidget;
+  class QListWidget;
+  class QSlider;
+  class OggFile;
 QT_END_NAMESPACE
 //=================================================================================================
 class AudioPlayer : public QMdiSubWindow, ALApp
@@ -17,8 +19,10 @@ class AudioPlayer : public QMdiSubWindow, ALApp
   Q_OBJECT
 
   QMdiArea *mdi;
-  QMap<QString, Sounds *> sounds;
-  QTreeWidget *soundTree;
+  QMap<QString, OggFile *> sounds;
+  QListWidget *soundList;
+  QSlider *timeScale;
+  OggFile *currentSound;
 
   public:
     explicit AudioPlayer( QWidget *parent = 0 );
@@ -32,6 +36,7 @@ class AudioPlayer : public QMdiSubWindow, ALApp
   private slots:
     void playSound();
     void stopSound();
+    void timePosition( int cur, int all );
 };
 //=================================================================================================
 
