@@ -263,8 +263,7 @@ SOURCES += \
     Sound/ALApp.cpp \
     Sound/AudioPlayer.cpp \
     Node/HotSpotViewer.cpp \
-    Sound/OggFile.cpp \
-    Sound/PlaySoundThread.cpp
+    Sound/OggFile.cpp
 
 HEADERS += \
   MainWindow.h \
@@ -414,7 +413,6 @@ HEADERS += \
     Sound/ALApp.h \
     Sound/AudioPlayer.h \
     Node/HotSpotViewer.h \
-    Sound/OggFile.h \
-    Sound/PlaySoundThread.h
+    Sound/OggFile.h
 
 RESOURCES += res.qrc
