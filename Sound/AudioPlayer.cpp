@@ -22,36 +22,51 @@ AudioPlayer::AudioPlayer( QWidget *parent ):
   QVBoxLayout *vl = new QVBoxLayout( fr );
 
   soundList = new QListWidget( fr );
+  connect( soundList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(soundsListDoubleClicked(QListWidgetItem*)) );
 
   QToolButton *tbFirst = new QToolButton( fr );
   tbFirst->setIconSize( QSize( 16, 16 ) );
   tbFirst->setIcon( QIcon(":res/audio_first.png") );
-  connect( tbFirst, SIGNAL(clicked()), this, SLOT(playSound()) );
+  tbFirst->setToolTip( tr("First Track") );
+  connect( tbFirst, SIGNAL(clicked()), this, SLOT(firstSound()) );
 
   QToolButton *tbPrev = new QToolButton( fr );
   tbPrev->setIconSize( QSize( 16, 16 ) );
   tbPrev->setIcon( QIcon(":res/audio_prev.png") );
-  connect( tbPrev, SIGNAL(clicked()), this, SLOT(playSound()) );
+  tbPrev->setToolTip( tr("Previous Track") );
+  connect( tbPrev, SIGNAL(clicked()), this, SLOT(prevSound()) );
 
   QToolButton *tbPlay = new QToolButton( fr );
   tbPlay->setIconSize( QSize( 16, 16 ) );
   tbPlay->setIcon( QIcon(":res/audio_play.png") );
+  tbPlay->setToolTip( tr("Play") );
   connect( tbPlay, SIGNAL(clicked()), this, SLOT(playSound()) );
 
   QToolButton *tbStop = new QToolButton( fr );
   tbStop->setIconSize( QSize( 16, 16 ) );
   tbStop->setIcon( QIcon(":res/audio_stop.png") );
+  tbStop->setToolTip( tr("Stop") );
   connect( tbStop, SIGNAL(clicked()), this, SLOT(stopSound()) );
 
   QToolButton *tbNext = new QToolButton( fr );
   tbNext->setIconSize( QSize( 16, 16 ) );
   tbNext->setIcon( QIcon(":res/audio_next.png") );
-  connect( tbNext, SIGNAL(clicked()), this, SLOT(playSound()) );
+  tbNext->setToolTip( tr("Next Track") );
+  connect( tbNext, SIGNAL(clicked()), this, SLOT(nextSound()) );
 
   QToolButton *tbLast = new QToolButton( fr );
   tbLast->setIconSize( QSize( 16, 16 ) );
   tbLast->setIcon( QIcon(":res/audio_last.png") );
-  connect( tbLast, SIGNAL(clicked()), this, SLOT(playSound()) );
+  tbLast->setToolTip( tr("Last Track") );
+  connect( tbLast, SIGNAL(clicked()), this, SLOT(lastSound()) );
+
+  tbLoop = new QToolButton( fr );
+  tbLoop->setIconSize( QSize( 16, 16 ) );
+  tbLoop->setIcon( QIcon(":res/audio_loop.png") );
+  tbLoop->setToolTip( tr("Loop") );
+  tbLoop->setCheckable( true );
+  tbLoop->setChecked( false );
+  connect( tbLoop, SIGNAL(toggled(bool)), this, SLOT(setLooping(bool)) );
 
   QHBoxLayout *hl = new QHBoxLayout();
   hl->addWidget( tbFirst );
@@ -62,6 +77,8 @@ AudioPlayer::AudioPlayer( QWidget *parent ):
   hl->addSpacing(5);
   hl->addWidget( tbNext );
   hl->addWidget( tbLast );
+  hl->addSpacing(5);
+  hl->addWidget( tbLoop );
   hl->setMargin(3);
   hl->setSpacing(0);
   hl->setAlignment( Qt::AlignHCenter );
@@ -108,6 +125,7 @@ void AudioPlayer::addSound( const QString &name )
 
         currentSound = sounds[ name ];
         playSound();
+        tbLoop->setChecked( currentSound->isLooped() );
 
         break;
       }
@@ -128,6 +146,8 @@ void AudioPlayer::addSound( const QString &name )
       currentSound = sounds[ name ];
       playSound();
     }
+
+    setWindowTitle( tr("Audio Player") + " : " + PathUtils::getName( name ) );
   }
 }
 //=================================================================================================
@@ -153,14 +173,83 @@ void AudioPlayer::stopSound()
     currentSound->stop();
 }
 //=================================================================================================
+void AudioPlayer::nextSound()
+{
+  if (soundList->currentRow() < soundList->count() - 1)
+    soundList->setCurrentRow( soundList->currentRow() + 1, QItemSelectionModel::ClearAndSelect );
+  else
+    soundList->setCurrentRow( 0, QItemSelectionModel::ClearAndSelect );
+
+  if (currentSound)
+    currentSound->stop();
+
+  currentSound = sounds[ soundList->item( soundList->currentRow() )->whatsThis() ];
+  playSound();
+  setWindowTitle( tr("Audio Player") + " : " + PathUtils::getName( soundList->item( soundList->currentRow() )->whatsThis() ) );
+}
+//=================================================================================================
+void AudioPlayer::prevSound()
+{
+  if (soundList->currentRow() > 0)
+    soundList->setCurrentRow( soundList->currentRow() - 1, QItemSelectionModel::ClearAndSelect );
+  else
+    soundList->setCurrentRow( soundList->count() - 1, QItemSelectionModel::ClearAndSelect );
+
+  if (currentSound)
+    currentSound->stop();
+
+  currentSound = sounds[ soundList->item( soundList->currentRow() )->whatsThis() ];
+  playSound();
+  setWindowTitle( tr("Audio Player") + " : " + PathUtils::getName( soundList->item( soundList->currentRow() )->whatsThis() ) );
+}
+//=================================================================================================
+void AudioPlayer::lastSound()
+{
+  if (soundList->currentRow() < soundList->count() - 1)
+    soundList->setCurrentRow( soundList->count() - 1, QItemSelectionModel::ClearAndSelect );
+
+  if (currentSound)
+    currentSound->stop();
+
+  currentSound = sounds[ soundList->item( soundList->currentRow() )->whatsThis() ];
+  playSound();
+  setWindowTitle( tr("Audio Player") + " : " + PathUtils::getName( soundList->item( soundList->currentRow() )->whatsThis() ) );
+}
+//=================================================================================================
+void AudioPlayer::firstSound()
+{
+  if (soundList->currentRow() > 0)
+    soundList->setCurrentRow( 0, QItemSelectionModel::ClearAndSelect );
+
+  if (currentSound)
+    currentSound->stop();
+
+  currentSound = sounds[ soundList->item( soundList->currentRow() )->whatsThis() ];
+  playSound();
+  setWindowTitle( tr("Audio Player") + " : " + PathUtils::getName( soundList->item( soundList->currentRow() )->whatsThis() ) );
+}
+//=================================================================================================
 void AudioPlayer::timePosition( int cur, int all )
 {
   timeScale->setRange( 0, all );
-
-  /*float p = (float)cur / (float)all * 100.0f;
-  int pos = p * all / 100;
-  qDebug() << pos;*/
-
   timeScale->setValue( cur );
+}
+//=================================================================================================
+void AudioPlayer::soundsListDoubleClicked( QListWidgetItem *item )
+{
+  if (currentSound)
+    currentSound->stop();
+
+  currentSound = sounds[ item->whatsThis() ];
+  currentSound->play();
+  tbLoop->setChecked( currentSound->isLooped() );
+
+  setWindowTitle( tr("Audio Player") + " : " + PathUtils::getName( item->whatsThis() ) );
+}
+//=================================================================================================
+void AudioPlayer::setLooping( bool state )
+{
+  if (currentSound)
+    currentSound->setLoop( state );
 }
 //=================================================================================================

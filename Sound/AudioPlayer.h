@@ -10,8 +10,10 @@
 //=================================================================================================
 QT_BEGIN_NAMESPACE
   class QListWidget;
+  class QListWidgetItem;
   class QSlider;
   class OggFile;
+  class QToolButton;
 QT_END_NAMESPACE
 //=================================================================================================
 class AudioPlayer : public QMdiSubWindow, ALApp
@@ -23,6 +25,7 @@ class AudioPlayer : public QMdiSubWindow, ALApp
   QListWidget *soundList;
   QSlider *timeScale;
   OggFile *currentSound;
+  QToolButton *tbLoop;
 
   public:
     explicit AudioPlayer( QWidget *parent = 0 );
@@ -36,7 +39,13 @@ class AudioPlayer : public QMdiSubWindow, ALApp
   private slots:
     void playSound();
     void stopSound();
+    void nextSound();
+    void prevSound();
+    void lastSound();
+    void firstSound();
     void timePosition( int cur, int all );
+    void soundsListDoubleClicked( QListWidgetItem *item );
+    void setLooping( bool state );
 };
 //=================================================================================================
 

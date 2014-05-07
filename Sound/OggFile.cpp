@@ -15,7 +15,7 @@ OggFile::OggFile( const QString &fileName, QObject *parent ):
   QObject( parent ),
   fileName( fileName )
 {
-  qDebug() << "Load file " << fileName << "...\n";
+  qDebug() << "Load file " << fileName;
   LoadOGG( fileName, bufferData, format, freq );
 }
 //=================================================================================================
@@ -37,7 +37,6 @@ void OggFile::LoadOGG( const QString &fileName, std::vector<char> &buffer, ALenu
   int bitStream;
   long bytes;
   char array[ BUFFER_SIZE ];              // Local fixed size array
-  FILE *f;
 
   // Open for binary reading
   f = fopen( fileName.toLatin1().data(), "rb" );
@@ -71,6 +70,8 @@ void OggFile::LoadOGG( const QString &fileName, std::vector<char> &buffer, ALenu
   freq = pInfo->rate;
 
   bytespersec = pInfo->channels * pInfo->rate * 16 / 8;
+  totalTime = (int)(ov_time_total( oggFile, -1 ) + 0.5) * pInfo->channels * freq * 2;
+  channels = pInfo->channels;
 
   // Keep reading until all is read
   do
@@ -81,7 +82,7 @@ void OggFile::LoadOGG( const QString &fileName, std::vector<char> &buffer, ALenu
     if (bytes < 0)
     {
       ov_clear( oggFile );
-      qDebug() << "Error decoding " << fileName << "...\n";
+      qDebug() << "Error decoding " << fileName;
       return;
     }
 
@@ -107,13 +108,13 @@ void OggFile::playSound()
   // This is a busy wait loop but should be good enough for example purpose
   do
   {
-    ALfloat butes;
+    ALfloat samples;
 
     // Query the state of the souce
     alGetSourcei( sourceID, AL_SOURCE_STATE, &state );
-    alGetSourcef( sourceID, AL_BYTE_OFFSET, &butes );
+    alGetSourcef( sourceID, AL_SAMPLE_OFFSET, &samples );
 
-    emit position( butes, bytespersec );
+    emit position( samples * channels * 2, totalTime );
   }
   while (state != AL_STOPPED);
 }
@@ -136,8 +137,32 @@ void OggFile::free()
   // Clean up!
   ov_clear( oggFile );
 
+  if (f)
+    fclose(f);
+
   // Clean up sound buffer and source
   alDeleteBuffers( 1, &bufferID );
   alDeleteSources( 1, &sourceID );
+}
+//=================================================================================================
+void OggFile::setLoop( bool state )
+{
+  alSourcei( sourceID, AL_LOOPING, state == true ? AL_TRUE : AL_FALSE  );
+}
+//=================================================================================================
+QString OggFile::name() const
+{
+  return fileName;
+}
+//=================================================================================================
+bool OggFile::isLooped()
+{
+  ALint looped;
+  alGetSourcei( sourceID, AL_LOOPING, &looped );
+
+  if (looped == 0)
+    return false;
+
+  return true;
 }
 //=================================================================================================

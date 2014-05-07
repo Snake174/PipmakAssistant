@@ -47,5 +47,6 @@
         <file>res/audio_play.png</file>
         <file>res/audio_prev.png</file>
         <file>res/audio_stop.png</file>
+        <file>res/audio_loop.png</file>
     </qresource>
 </RCC>

@@ -25,7 +25,10 @@ class OggFile : public QObject
   ALsizei freq;                  // The frequency of the sound data
   std::vector<char> bufferData;  // The sound buffer data from file
   int bytespersec;
+  int totalTime;
+  int channels;
   OggVorbis_File *oggFile;
+  FILE *f;
 
   public:
     explicit OggFile( const QString &fileName, QObject *parent = 0 );
@@ -34,6 +37,9 @@ class OggFile : public QObject
     void play();
     void stop();
     void free();
+    void setLoop( bool state );
+    QString name() const;
+    bool isLooped();
 
   private:
     void LoadOGG( const QString &fileName, std::vector<char> &buffer, ALenum &format, ALsizei &freq );
