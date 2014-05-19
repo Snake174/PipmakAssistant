@@ -27,6 +27,7 @@
 #include "Node/Node.h"
 #include "SettingsDialog/SettingsDialog.h"
 #include "PipmakResource/PipmakResource.h"
+#include "CodeGenerator/CodeGenerator.h"
 #include "wigglywidget.h"
 #include "About.h"
 #include "Sound/AudioPlayer.h"
@@ -135,6 +136,10 @@ void MainWindow::createMenus()
   aProjectLegend->setWhatsThis("ProjectLegend");
   connect( aProjectLegend, SIGNAL(triggered()), this, SLOT(showProjectLegend()) );
 
+  QAction *aCodeGenerator = new QAction( QIcon(":res/code_generator.png"), tr("Code Generator"), this );
+  aCodeGenerator->setWhatsThis("CodeGenerator");
+  connect( aCodeGenerator, SIGNAL(triggered()), this, SLOT(showCodeGenerator()) );
+
   QAction *aSettings = new QAction( QIcon(":res/settings.png"), tr("Settings"), this );
   aSettings->setWhatsThis("Settings");
   connect( aSettings, SIGNAL(triggered()), this, SLOT(showSettings()) );
@@ -149,12 +154,13 @@ void MainWindow::createMenus()
   tbProject->addAction( aRunProject );
   tbProject->addSeparator();
   tbProject->addAction( aProjectLegend );
+  tbProject->addAction( aCodeGenerator );
   tbProject->addSeparator();
   tbProject->addAction( aSettings );
   tbProject->addSeparator();
   tbProject->addAction( aUpdate );
 
-  actions << aNewProject << aOpenProjects << aRunProject << aProjectLegend << aSettings << aUpdate;
+  actions << aNewProject << aOpenProjects << aRunProject << aProjectLegend << aCodeGenerator << aSettings << aUpdate;
 
   QToolButton *tb = new QToolButton( this );
   tb->setIcon( QIcon(":res/about.png") );
@@ -466,6 +472,18 @@ void MainWindow::showProjectLegend()
     legend->show();
     connect( legend, SIGNAL(editNode(QString)), this, SLOT(editNode(QString)) );
   }
+}
+//=================================================================================================
+void MainWindow::showCodeGenerator()
+{
+  if (!projectTab->count())
+    return;
+
+  QMdiArea *mdi = (QMdiArea *)projectTab->currentWidget();
+
+  CodeGenerator *cg = new CodeGenerator( mdi );
+  mdi->addSubWindow( cg );
+  cg->show();
 }
 //=================================================================================================
 void MainWindow::showSettings()

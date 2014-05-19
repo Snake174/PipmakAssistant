@@ -48,5 +48,8 @@
         <file>res/audio_prev.png</file>
         <file>res/audio_stop.png</file>
         <file>res/audio_loop.png</file>
+        <file>res/code_generator.png</file>
+        <file>res/generate.png</file>
+        <file>res/remove.png</file>
     </qresource>
 </RCC>

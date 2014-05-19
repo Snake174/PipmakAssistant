@@ -55,6 +55,7 @@ class MainWindow : public QMainWindow
     void processError( QProcess::ProcessError error );
     void editNode( const QString &nodeName );
     void showProjectLegend();
+    void showCodeGenerator();
     void showSettings();
     void showAbout();
     void notify( const QString &nodeName, const QStringList &images, QSize maxSize );

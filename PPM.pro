@@ -9,7 +9,7 @@ OBJECTS_DIR = obj
 MOC_DIR = obj
 RCC_DIR = obj
 
-DEFINES += APP_VERSION=\\\"0.6\\\"
+DEFINES += APP_VERSION=\\\"0.7\\\"
 DEFINES += SCINTILLA_QT SCI_LEXER
 DEFINES += GL_GLEXT_PROTOTYPES
 
@@ -263,7 +263,8 @@ SOURCES += \
   Sound/ALApp.cpp \
   Sound/AudioPlayer.cpp \
   Node/HotSpotViewer.cpp \
-  Sound/OggFile.cpp
+  Sound/OggFile.cpp \
+    CodeGenerator/CodeGenerator.cpp
 
 HEADERS += \
   MainWindow.h \
@@ -413,6 +414,7 @@ HEADERS += \
   Sound/ALApp.h \
   Sound/AudioPlayer.h \
   Node/HotSpotViewer.h \
-  Sound/OggFile.h
+  Sound/OggFile.h \
+    CodeGenerator/CodeGenerator.h
 
 RESOURCES += res.qrc

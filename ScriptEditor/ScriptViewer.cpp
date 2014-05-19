@@ -29,7 +29,7 @@ ScriptViewer::ScriptViewer( QWidget *parent ):
   setIndentationWidth(2);
 
   // Авто-дополнение кода в зависимости от источника
-  setAutoCompletionSource( QsciScintilla::AcsAPIs );
+  setAutoCompletionSource( QsciScintilla::AcsAll );
   setAutoCompletionCaseSensitivity( false );
   setAutoCompletionReplaceWord( true );
   setAutoCompletionUseSingle( QsciScintilla::AcusNever );
