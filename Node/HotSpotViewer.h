@@ -18,6 +18,8 @@ class HotSpotScene : public QGraphicsScene
   QImage *hotspotMap;
   int zoom;
   bool showHotspotMap;
+  QPointF mousePos;
+  QSize imageSize;
 
   public:
     HotSpotScene( QWidget *parent = 0 );

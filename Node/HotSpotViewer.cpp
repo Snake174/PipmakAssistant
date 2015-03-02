@@ -47,6 +47,9 @@ void HotSpotScene::setEquirect()
   if (!view->getNode()->getLua()->getHotSpotMap().fileName.isEmpty())
     hotspotMap = view->getNode()->getHotspotMapImage();
 
+  imageSize.setWidth( image->width() );
+  imageSize.setHeight( image->height() );
+
   setSceneRect( 0, 0, image->width(), image->height() );
   update();
 }
@@ -70,6 +73,22 @@ void HotSpotScene::drawForeground( QPainter *painter, const QRectF &/*rect*/ )
 
   if (showHotspotMap)
     painter->drawImage( sceneRect(), *hotspotMap );
+
+  int x = mousePos.x();
+  int y = mousePos.y();
+  int w = imageSize.width() * zoom;
+  int h = imageSize.height() * zoom;
+
+  if (x > 0 && x < w && y > 0 && y < h)
+  {
+    painter->save();
+    painter->setPen( QPen( QBrush( Qt::green ), 3 ) );
+    painter->drawLine( 0, y, 5, y );
+    painter->drawLine( w - 5, y, w, y );
+    painter->drawLine( x, 0, x, 5 );
+    painter->drawLine( x, h - 5, x, h );
+    painter->restore();
+  }
 }
 //=================================================================================================
 void HotSpotScene::mousePressEvent( QGraphicsSceneMouseEvent *e )
@@ -86,6 +105,13 @@ void HotSpotScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *e )
 //=================================================================================================
 void HotSpotScene::mouseMoveEvent( QGraphicsSceneMouseEvent *e )
 {
+  QGraphicsScene::mouseMoveEvent(e);
+
+  if (e->isAccepted())
+    return;
+
+  mousePos = e->scenePos();
+  update();
 }
 //=================================================================================================
 void HotSpotScene::wheelEvent( QGraphicsSceneWheelEvent *e )
@@ -132,6 +158,7 @@ HotSpotViewer::HotSpotViewer( Node *node, QWidget *parent ):
   setAutoFillBackground( false );
   setCacheMode( QGraphicsView::CacheBackground );
   setAlignment( Qt::AlignLeft | Qt::AlignTop );
+  setMouseTracking( true );
 
   QPalette p;
   p.setColor( QPalette::Base, Qt::white );
